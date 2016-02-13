@@ -109,4 +109,7 @@ class Parser:
 
   def parse_test_inputs(self):
     lines = self.read_input(self.test_inputs_file)
-    return self.construct_test_inputs(lines)
+    test_inputs = []
+    for i in range(0, len(lines), 2):
+      test_inputs.append((lines[i], lines[i + 1]))
+    return test_inputs

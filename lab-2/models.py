@@ -44,8 +44,6 @@ class DFA:
     '''Initialize the DFA.'''
     self.alphabet = []
     self.start_state = None
-    self.states_stack = []
-    self.start_index = 0
     # self.current_state = None
 
   def set_alphabet(self, alphabet):
@@ -61,52 +59,64 @@ class DFA:
     # self.set_start_state(self.start_state)
     pass
 
-  def push(self, symbol, state):
-    self.states_stack.append((symbol, state))
+  def push(self, states_stack, symbol, state):
+    states_stack.append((symbol, state))
 
-  def pop(self):
-    return self.states_stack.pop()
+  def pop(self, states_stack):
+    return states_stack.pop()
 
-  def peek(self):
-    return reversed(self.states_stack[self.start_index:])
+  def peek(self, states_stack):
+    return reversed(states_stack)
 
-  def update_index(self):
-    self.start_index = len(self.states_stack)
+  def update_index(self, states_stack):
+    return len(states_stack)
 
-  def get_output(self):
-    for symbol, state in self.peek():
+  def get_output(self, states_stack):
+    accept_state = None
+    for symbol, state in self.peek(states_stack):
       if state.state_type == ACCEPT_STATE:
+        accept_state = state
         break
-      self.pop()
-    else:
-      return ''
-    output = ''.join([symbol for symbol, state in self.states_stack[self.start_index:]])
-    return output
+      self.pop(states_stack)
+    return accept_state, ''.join([symbol for symbol, state in states_stack])
 
   def __repr__(self):
     '''Return string representation of DFA.'''
     return 'DFA with alphabet %r' % (str(self.alphabet))
 
-  def subrun(self, input_str):
+  def subrun(self, input_str, states_stack):
     current_state = self.start_state
     for c in input_str:
       current_state = current_state.next(c)
       if not current_state:
-        return self.get_output()
+        return self.get_output(states_stack)
       else:
-        self.push(c, current_state)
+        self.push(states_stack, c, current_state)
+    else:
+      return self.get_output(states_stack)
 
   def run(self, input_str):
     """
     """
     output = []
-    while len(self.states_stack) != len(input_str):
-      current_output = self.subrun(input_str[len(self.states_stack):])
-      if current_output:
-        self.update_index()
-        output.append(current_output)
-      elif input_str[self.start_index] not in self.alphabet:
+    states_stack = []
+    # print(input_str)
+    while len(input_str) != len(states_stack):
+      if input_str[0] not in self.alphabet:
+        state = State('')
+        state.lexical_category_name = ''
+        output.append((state, 'Error!'))
         break
+      current_output = self.subrun(input_str, states_stack)
+      # print ('output: ', current_output)
+      # print ('output: ', states_stack)
+      if not current_output.count(None):
+        output.append(current_output)
+        input_str = input_str[len(states_stack):]
+        states_stack = []
     else:
-      output.append(self.get_output())
-    print(output)
+      # print('else while')
+      # output.append(self.get_output(states_stack))
+      # print(states_stack)
+      pass
+    return output

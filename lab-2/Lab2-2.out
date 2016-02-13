@@ -9,6 +9,6 @@ output4:
 output5:
 8,bb 8,abbb 8,ab 8,abbbb 8,ab 8,abbb 8,aaab 8,aaaaab 6,abb 8,aaaab 8,ab 8,abbbb 6,abb 8,aaab 8,ab 6,abb 8,aab 8,aab 8,aabb 8,abbbbbb 8,aab 8,aaaaaabbbb 8,aaab 8,ab 8,ab 8,aaabb 8,aaabbb 6,abb 8,ab 8,aabb 8,ab 8,ab 8,aabb 8,ab 6,abb 6,abb 8,aaabb 8,aaabbb 6,abb 8,aab 8,aaaab 8,aaaabbbbb 8,aab 8,abbbb 8,abbb 8,ab 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a 2,a
 output6:
-Error: Input lexemes don't match the language!
+,Error!
 output7:
-8,bbbbbbbbbbbbbbbbbbbbbbbbbbbbb, Error!
+8,bbbbbbbbbbbbbbbbbbbbbbbbbbbbb ,Error!
