@@ -1,5 +1,4 @@
 '''To hold our models.'''
-
 START_STATE = 0
 NORMAL_STATE = 1
 ACCEPT_STATE = 2
@@ -14,26 +13,29 @@ class State:
     self.name = name
     self.state_type = state_type
     self.lexical_category_name = 'N/A'
-    # self.transitions = transitions
+    self.transitions = {}
 
-  def __str__(self):
+  def add_transition(self, symbol, next_state):
+    self.transitions[symbol] = next_state
+
+  def set_lexical_category(self, lexical_category_name, expression):
+    self.lexical_category_name = lexical_category_name
+    self.expression = expression
+
+  def next(self, symbol):
+    if symbol in self.transitions:
+      return self.transitions[symbol]
+    else:
+      print('--- Ends here', self)
+      return None
+
+  def __unicode__(self):
+    return 'State: %r' % self.name
+
+  def __repr__(self):
     '''Return string representation of a state.'''
     state_types = ['START_STATE', 'NORMAL_STATE', 'ACCEPT_STATE', 'REJECT_STATE']
-    return 'State: %s # %s' % (self.state, state_types[self.state_type])
-
-
-class Transition:
-  '''Represent transitions in DFA.'''
-
-  def __init__(self, start_state, symbol, end_state):
-    '''Initialize a transition.'''
-    self.start_state = start_state
-    self.symbol = symbol
-    self.end_state = end_state
-
-  def __str__(self):
-    '''Return string representation of a transition.'''
-    return 'Transition: (%s) => (%s) => (%s)' % (self.symbol, str(self.start_state), str(self.end_state))
+    return '%r: %r - Lexical Category: %r' % (state_types[self.state_type], self.name, self.lexical_category_name)
 
 
 class DFA:
@@ -42,23 +44,41 @@ class DFA:
   def __init__(self):
     '''Initialize the DFA.'''
     self.alphabet = []
-    self.states = []
-    self.lexical_categories = []
+    self.start_state = None
+    self.states_stack = []
+    # self.current_state = None
 
   def set_alphabet(self, alphabet):
     '''Set alphabet for this DFA eg. [a, b].'''
     self.alphabet = alphabet
 
-  def set_states(self, states):
+  def set_start_state(self, start_state):
     '''Set states for this DFA.'''
-    self.states = states
+    self.start_state = start_state
+    # self.current_state = start_state
 
-  def __str__(self):
+  def reset(self):
+    self.set_start_state(self.start_state)
+
+  def push(self, symbol, state):
+    self.states_stack.append((symbol, state))
+
+  def pop(self):
+    return self.states_stack.pop()
+
+  def peek(self):
+    return self.states_stack[-1]
+
+  def __repr__(self):
     '''Return string representation of DFA.'''
-    return 'DFA with alphabet %s' % (str(self.alphabet))
+    return 'DFA with alphabet %r' % (str(self.alphabet))
 
-  def run(input_str):
+  def run(self, input_str):
     """
-
     """
-    pass
+    current_state = self.start_state
+    for c in input_str:
+      current_state = current_state.next(c)
+      self.states_stack.append(current_state)
+      print(current_state)
+    # print(self.states_stack)

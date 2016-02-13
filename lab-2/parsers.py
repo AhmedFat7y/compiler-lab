@@ -36,42 +36,39 @@ class Parser:
 
   def associate_definitions_with_states(self, labels, definitions):
     raw_lexical_categories = []
-    for definition in definitions:
-      raw_lexical_categories.append([])
-      for label in labels:
+    for label in labels:
+      for definition in definitions:
         if definition[1] == label[1]:
-          lexical_categories[-1].append((definition[0], label[0], label[1]))
+          raw_lexical_categories.append((definition[0], label[0], label[1]))
+          break
     return raw_lexical_categories
 
   def extract_states(self):
     raw_states = self.data[0][0].split(',')
     start_state = self.data[3][0].split(',')
     accept_states = self.data[4][0].split(',')
-    self.states = []
-    for raw_state in raw_states:
-      state = State(raw_state)
-      if raw_state in accept_states:
-        state.state_type = ACCEPT_STATE
-      elif raw_state in start_state:
-        state.state_type = START_STATE
-      self.states.append(state)
-    self.states.append(State('reject', REJECT_STATE))
+    normal_states = set(raw_states) - (set(accept_states) | set(start_state))
+    self.states.append(State(start_state[0], state_type=START_STATE))
+    for normal_state in normal_states:
+      self.states.append(State(normal_state))
+    for accept_state in accept_states:
+      self.states.append(State(accept_state, state_type=ACCEPT_STATE))
     return self.states
 
   def extract_alphabet(self):
-    raw_alphabet = self.data[1].split(',')
+    raw_alphabet = self.data[1][0].split(',')
     self.alphabet = raw_alphabet
 
   def extract_transitions(self):
     raw_transitions = self.data[2]
-    self.transitions = map(lambda x: tuple(x.split(',')), raw_transitions)
+    self.transitions = [tuple(x.split(',')) for x in raw_transitions]
     return self.transitions
 
   def extract_lexical_categories(self):
     raw_labels = self.data[5]
     raw_definitions = self.data[6]
-    labels = map(lambda x: tuple(x.split(',')), raw_labels)
-    definitions = map(lambda x: tuple(x.split(',')), raw_definitions)
+    labels = [tuple(x.split(',')) for x in raw_labels]
+    definitions = [tuple(x.split(',')) for x in raw_definitions]
     self.lexical_categories = self.associate_definitions_with_states(labels, definitions)
     return self.lexical_categories
 
@@ -81,8 +78,27 @@ class Parser:
     self.extract_transitions()
     self.extract_lexical_categories()
 
+  def update_states_transitions(self):
+    for transition in self.transitions:
+      state1 = self.get_state(transition[0])
+      state2 = self.get_state(transition[2])
+      state1.add_transition(transition[1], state2)
+
+  def update_states_lexical_categories(self):
+    for lexical_category in self.lexical_categories:
+      state = self.get_state(lexical_category[1])
+      state.set_lexical_category(lexical_category[0], lexical_category[2])
+
+  def construct_dfa(self):
+    self.dfa = DFA()
+    self.dfa.set_alphabet(self.alphabet)
+    self.dfa.set_start_state(self.states[0])
+    self.update_states_transitions()
+    self.update_states_lexical_categories()
+    return self.dfa
+
   def parse(self):
     self.read_input()
     self.prepare_raw_data()
     self.extract_data()
-    return self.dfa
+    return self.construct_dfa()

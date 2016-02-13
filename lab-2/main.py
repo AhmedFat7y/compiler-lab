@@ -4,4 +4,4 @@ from parsers import Parser
 
 if __name__ == '__main__':
   parser = Parser('fallbackdfa.in')
-  parser.parse()
+  parser.parse().run('abb')
