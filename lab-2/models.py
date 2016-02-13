@@ -26,7 +26,6 @@ class State:
     if symbol in self.transitions:
       return self.transitions[symbol]
     else:
-      print('--- Ends here', self)
       return None
 
   def __unicode__(self):
@@ -46,6 +45,7 @@ class DFA:
     self.alphabet = []
     self.start_state = None
     self.states_stack = []
+    self.start_index = 0
     # self.current_state = None
 
   def set_alphabet(self, alphabet):
@@ -58,7 +58,8 @@ class DFA:
     # self.current_state = start_state
 
   def reset(self):
-    self.set_start_state(self.start_state)
+    # self.set_start_state(self.start_state)
+    pass
 
   def push(self, symbol, state):
     self.states_stack.append((symbol, state))
@@ -67,18 +68,45 @@ class DFA:
     return self.states_stack.pop()
 
   def peek(self):
-    return self.states_stack[-1]
+    return reversed(self.states_stack[self.start_index:])
+
+  def update_index(self):
+    self.start_index = len(self.states_stack)
+
+  def get_output(self):
+    for symbol, state in self.peek():
+      if state.state_type == ACCEPT_STATE:
+        break
+      self.pop()
+    else:
+      return ''
+    output = ''.join([symbol for symbol, state in self.states_stack[self.start_index:]])
+    return output
 
   def __repr__(self):
     '''Return string representation of DFA.'''
     return 'DFA with alphabet %r' % (str(self.alphabet))
 
-  def run(self, input_str):
-    """
-    """
+  def subrun(self, input_str):
     current_state = self.start_state
     for c in input_str:
       current_state = current_state.next(c)
-      self.states_stack.append(current_state)
-      print(current_state)
-    # print(self.states_stack)
+      if not current_state:
+        return self.get_output()
+      else:
+        self.push(c, current_state)
+
+  def run(self, input_str):
+    """
+    """
+    output = []
+    while len(self.states_stack) != len(input_str):
+      current_output = self.subrun(input_str[len(self.states_stack):])
+      if current_output:
+        self.update_index()
+        output.append(current_output)
+      elif input_str[self.start_index] not in self.alphabet:
+        break
+    else:
+      output.append(self.get_output())
+    print(output)
