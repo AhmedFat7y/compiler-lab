@@ -75,10 +75,6 @@ def start():
   lines = read_input_file()
   rules = get_rules_from_lines(lines)
   rules = parse_rules(rules)
-  for head, tail in rules.items():
-    print('-', head)
-    for term in tail:
-      print('--', term)
 
 if __name__ == '__main__':
   start()
