@@ -1,10 +1,10 @@
 import java.lang.System;
 import java.io.*;
 
-class Lexer {
+public class Lexer {
 
 	Yylex tokenizer;
-	public  Lexer(String fileName) 
+	public  Lexer(String fileName)
 	{
 	  try
 	  {
@@ -12,8 +12,8 @@ class Lexer {
 	  }
 	  catch(Exception e)
 	  {
-	  
-	  }	 
+
+	  }
 	}
 	public Token nextToken()
 	{
@@ -37,6 +37,7 @@ class Lexer {
 %type Token
 %char
 %line
+%state TEXT_COMAND
 
 
 %{
@@ -52,15 +53,32 @@ class Lexer {
 
 START=(\\documentclass\{(.)+\})
 PACKAGE=(\\usepackage\[(.)+\]\{(.)+\})
-COMMENT=(%[.]*)
+COMMENT=(%(.)*)
+BEGIN_DOCUMENT=(\\begin\{document\})
+END_DOCUMENT=(\\end\{document\})
+TITLE=(\\title)
+SUBTITLE=(\\subtitle)
+DATE=(\\date)
+MAKETITLE=(\\maketitle)
+SECTION=(\\section)
+TEXTBF=(\\textbf)
+TEXT=\{.+\}
+BODY=[^%\{\}\[\]\n\\]+
 NEWLINE=[\n]
 
-%% 
-<YYINITIAL> {START} { return (new Token(Token.DOC_CLASS,yytext()));}
-<YYINITIAL> {PACKAGE} { return (new Token(Token.PACKAGE,yytext()));}
+%%
+<YYINITIAL> {START} { return new Token(Token.DOC_CLASS,yytext());}
+<YYINITIAL> {PACKAGE} { return new Token(Token.PACKAGE,yytext());}
 <YYINITIAL> {COMMENT} {}
-<YYINITIAL> {NEWLINE} {return (new Token(Token.NEWLINE,yytext()));
-}
-<YYINITIAL> . {
-  return new Token(Token.ERROR, "Invalid input: " + yytext());
-}
+<YYINITIAL> {NEWLINE} {return new Token(Token.NEWLINE,yytext());}
+<YYINITIAL> {BEGIN_DOCUMENT} {return new Token(Token.BEGIN, yytext());}
+<YYINITIAL> {END_DOCUMENT} {return new Token(Token.END, yytext());}
+<YYINITIAL> {TITLE} {yybegin(TEXT_COMAND); return new Token(Token.TITLE, yytext());}
+<YYINITIAL> {SUBTITLE} {yybegin(TEXT_COMAND); return new Token(Token.SUB_TITLE, yytext());}
+<YYINITIAL> {DATE} {yybegin(TEXT_COMAND); return new Token(Token.DATE, yytext());}
+<YYINITIAL> {MAKETITLE} {return new Token(Token.MAKE, yytext());}
+<YYINITIAL> {SECTION} {yybegin(TEXT_COMAND); return new Token(Token.SECTION, yytext());}
+<YYINITIAL> {TEXTBF} {yybegin(TEXT_COMAND); return new Token(Token.BF, yytext());}
+<TEXT_COMAND> {TEXT} {yybegin(YYINITIAL); return new Token(Token.TEXT, yytext());}
+<YYINITIAL> {BODY} {return new Token(Token.BODY, yytext());}
+<YYINITIAL> . {return new Token(Token.ERROR, "Invalid input: " + yytext());}
