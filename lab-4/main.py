@@ -46,8 +46,6 @@ def parse_term(term, heads):
   term_terminals_variables = []  # list of terminals/non-terminals
   while term:
     head_index_in_term, head_in_term = get_variable_at_start(term, heads)
-    # print ('-', head_index_in_term)
-    # print ('-', head_in_term)
     if not head_in_term:
       term_terminals_variables.append((term, False))
       term = ''
