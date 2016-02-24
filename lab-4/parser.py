@@ -9,8 +9,9 @@ def format_output(rules):
     for term in tail:
       for terminal_variable, _ in term:
         result += terminal_variable
-      result += '|'
-    result += ']'
+      if tail[-1] != term:
+        result += ', '
+    result += ']\n'
     output_lines.append(result)
   return output_lines
 
@@ -88,7 +89,11 @@ def parse_rules(rules):
 
 
 def parse(input_file_name):
+  """
+  returns dict of rules in this format
+  rules = {'head': [[('terminal', False), ('non-terminal', 'True')], [('terminal', False)]]}
+  """
   lines = read_input_file(input_file_name)
   rules = get_rules_from_lines(lines)
   rules = parse_rules(rules)
-  return rules
+  return lines, rules
