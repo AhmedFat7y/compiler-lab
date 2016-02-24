@@ -1,9 +1,14 @@
 import re
 
 
-def format_output(rules):
+def format_output(rules, heads):
   output_lines = []
-  for head, tail in rules.items():
+  heads_prime = [head + "'" for head in heads]
+  for head in (heads + heads_prime):
+    tail = []
+    if head not in rules:
+      continue
+    tail = rules[head]
     # rfactor'->[*rfactor', !]
     result = head + '->['
     for term in tail:
@@ -16,10 +21,10 @@ def format_output(rules):
   return output_lines
 
 
-def write_output_file(input_file_name, rules):
+def write_output_file(input_file_name, rules, heads):
   output_file_name = re.sub(r'\.in$', '.out.out', input_file_name)
   with open(output_file_name, 'w') as f:
-    output_lines = format_output(rules)
+    output_lines = format_output(rules, heads)
     f.writelines(output_lines)
 
 

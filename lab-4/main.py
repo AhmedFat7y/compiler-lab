@@ -87,4 +87,4 @@ if __name__ == '__main__':
   # print('--', heads)
   remove_indirect_recursion(heads, rules)
   # print_rules(rules)
-  write_output_file(file_name, rules)
+  write_output_file(file_name, rules, heads)
