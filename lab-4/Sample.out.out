@@ -1,0 +1,3 @@
+F->[('(', False), ('id', False), ('number', False)]
+T->[('T', True), ('F', True)]
+E->[('E', True), ('T', True)]
