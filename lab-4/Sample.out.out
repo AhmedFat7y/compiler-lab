@@ -1,3 +1,5 @@
-F->[('(', False), ('id', False), ('number', False)]
-T->[('T', True), ('F', True)]
-E->[('E', True), ('T', True)]
+E->[TE']
+T->[FT']
+F->[id, number, (E'T'F)]
+E'->[+TE', !]
+T'->[*FT', !]
