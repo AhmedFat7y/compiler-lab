@@ -5,3 +5,4 @@ __pycache__
 JLex/
 *.jar
 *.class
+.DS_Store
