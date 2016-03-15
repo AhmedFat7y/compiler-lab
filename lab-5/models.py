@@ -9,21 +9,27 @@ class Rule:
     '''
     self.head = head
     self.body = body
+    self.terms = []
+    self.terms = self.get_terms()
+
+  def set_terms(self, terms):
+    self.terms = terms
 
   def get_terms(self):
-    terms_list = []
+    if self.terms:
+      return self.terms
     for term in self.body:
       symbols_list = []
       for symbol in term:
         symbols_list.append(symbol[0])
-      terms_list.append(symbols_list)
-    return terms_list
+      self.terms.append(symbols_list)
+    return self.terms
 
   def __repr__(self):
     out = self.head + '->['
-    for term in self.body:
+    for term in self.terms:
       for symbol in term:
-        out += symbol[0]
-      if self.body[-1] != term:
+        out += symbol
+      if self.terms[-1] != term:
         out += ', '
     return out + ']'
