@@ -36,5 +36,5 @@ BODY : In latex you cant have a backslash within a text, otherwise, it will caus
 TEXTBF : \textbf
 TEXT : line number
 BODY :  that caused the error in the error message. 
-ERROR Line: 27 Undefined control sequence: \errorcoming
+ERROR Line: 29 Undefined control sequence: \errorcoming
 END : \end{document}

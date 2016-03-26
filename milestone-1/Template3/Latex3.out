@@ -5,7 +5,7 @@ TITLE : \title
 TEXT : Third Template
 DATE: \date
 TEXT : March 2016
-MAKETITLE: \maketitle
+MAKE TITLE: \maketitle
 SECTION : \section
 TEXT : Item List and Equations
 BODY : In the item list the body of the item list is either a plain text or a text displayed in math mode. 

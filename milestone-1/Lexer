@@ -1,0 +1,160 @@
+import java.lang.System;
+import java.util.*;
+import java.io.*;
+
+public class Lexer {
+
+  Yylex tokenizer;
+  public  Lexer(String fileName)
+  {
+    try
+    {
+    tokenizer=new Yylex(new BufferedReader(new FileReader(fileName)));
+    }
+    catch(Exception e)
+    {
+
+    }
+  }
+  public Token nextToken()
+  {
+    Token next=null;
+    try
+    {
+     next=  tokenizer.getToken();
+    }
+    catch(Exception e)
+    {
+    }
+    return next;
+  }
+  }
+
+
+%%
+
+
+%function getToken
+%type Token
+%char
+%line
+%state BACK_SLASH_STATE, ITEM_LIST_STATE, MATH_MODE_STATE, EQUATION_MODE_STATE
+
+
+%{
+  //initialize  variables to be used by class
+  LinkedList<Integer> previousStates;
+
+  public void gotoState(int state) {
+    previousStates.addLast(yy_lexical_state);
+    yybegin(state);
+  }
+
+  public void exitState() {
+    if (previousStates.isEmpty()) {
+      //throw new Exception("what are you trying to do, man?");
+    }
+    //System.out.println(previousStates);
+    yybegin(previousStates.removeLast());
+  }
+
+  public void exitState(int nStatestoExit) {
+    if (previousStates.isEmpty()) {
+      //throw new Exception("what are you trying to do, man?");
+    }
+    for(int i=0; i < nStatestoExit; i++) {
+      previousStates.removeLast();
+    }
+    yybegin(previousStates.removeLast());
+  }
+%}
+
+
+%init{
+//Add code to be executed on initialization of the lexer
+  previousStates = new LinkedList<>();
+%init}
+
+%state back slash
+
+BACK_SLASH=\\
+
+%state comands with content non printable content
+DOCUMENT_CLASS=(documentclass\{(.)+\})
+PACKAGE=(usepackage\[(.)+\]\{(.)+\})
+COMMENT=(%(.)*)
+BEGIN_EQUATION=begin\{equation\}
+BEGIN_ITEM_LIST=begin\{itemize\}
+END_EQUATION=end\{equation\}
+END_ITEM_LIST=end\{itemize\}
+BEGIN=(begin\{.*\})
+END=(end\{.*\})
+
+%state commands with content printable content
+TITLE=(title)
+SUBTITLE=(subtitle)
+DATE=(date)
+SECTION=(section)
+TEXTBF=(textbf)
+
+%state math mode stuff
+MATH_START_END=$
+DIGIT=[0-9]+
+OPERATOR=[-+*/^%!=|&]
+VARIABLE=[a-zA-Z]+
+FUNCTION=VARIABLE\(VARIABLE(, VARIABLE)*\)
+
+%state equation stuff
+EQUATION_LABEL=\label\{.*\}
+
+
+%state item list stuff
+
+
+%state  commands without content
+MAKETITLE=(\\maketitle)
+
+TEXT=\{.+\}
+BODY=[^%\{\}\[\]\n\\]+
+
+%%
+<YYINITIAL> {BACK_SLASH} {
+  gotoState(BACK_SLASH_STATE);
+}
+
+<BACK_SLASH_STATE> {BACK_SLASH} {
+  exitState();
+  return new Token(Token.NEWLINE, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {DOCUMENT_CLASS} {
+  exitState();
+  return new Token(Token.DOC_CLASS, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {PACKAGE} {
+  exitState();
+  return new Token(Token.PACKAGE, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {BEGIN_EQUATION} {
+  gotoState(EQUATION_MODE_STATE);
+  return new Token(Token.BEGIN, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {BEGIN_ITEM_LIST} {
+  gotoState(ITEM_LIST_STATE);
+  return new Token(Token.BEGIN, '\\' + yytext());
+}
+
+<BACK_SLASH_STATE> {BEGIN} {}
+<BACK_SLASH_STATE> {END} {exitState(2);}
+<BACK_SLASH_STATE> {TITLE} {}
+<BACK_SLASH_STATE> {SUBTITLE} {}
+<BACK_SLASH_STATE> {DATE} {}
+<BACK_SLASH_STATE> {SECTION} {}
+<BACK_SLASH_STATE> {TEXTBF} {}
+
+<BACK_SLASH_STATE> . {
+}
+<YYINITIAL> . {
+}
+<YYINITIAL, BACK_SLASH_STATE, ITEM_LIST_STATE, MATH_MODE_STATE, EQUATION_MODE_STATE> [\r]?[\n] {
+  System.out.println("new line");
+}

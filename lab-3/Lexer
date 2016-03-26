@@ -37,7 +37,7 @@ public class Lexer {
 %type Token
 %char
 %line
-%state TEXT_COMAND
+%state TEXT_COMAND, hello, why, what, NOOOO
 
 
 %{
@@ -67,7 +67,7 @@ BODY=[^%\{\}\[\]\n\\]+
 NEWLINE=[\n]
 
 %%
-<YYINITIAL> {START} { return new Token(Token.DOC_CLASS,yytext());}
+<YYINITIAL> {START} { System.out.println(TEXT_COMAND + ", " + hello + ", " + why + ", " + what + ", " + NOOOO); return null;}
 <YYINITIAL> {PACKAGE} { return new Token(Token.PACKAGE,yytext());}
 <YYINITIAL> {COMMENT} {}
 <YYINITIAL> {NEWLINE} {return new Token(Token.NEWLINE,yytext());}
@@ -81,4 +81,6 @@ NEWLINE=[\n]
 <YYINITIAL> {TEXTBF} {yybegin(TEXT_COMAND); return new Token(Token.BF, yytext());}
 <TEXT_COMAND> {TEXT} {yybegin(YYINITIAL); return new Token(Token.TEXT, yytext());}
 <YYINITIAL> {BODY} {return new Token(Token.BODY, yytext());}
-<YYINITIAL> . {return new Token(Token.ERROR, "Invalid input: " + yytext());}
+<YYINITIAL> . {
+	//return new Token(Token.ERROR, "Invalid input: " + yytext());
+}

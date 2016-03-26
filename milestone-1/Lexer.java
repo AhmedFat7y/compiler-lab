@@ -1,30 +1,31 @@
 import java.lang.System;
+import java.util.*;
 import java.io.*;
 public class Lexer {
-	Yylex tokenizer;
-	public  Lexer(String fileName)
-	{
-	  try
-	  {
-	  tokenizer=new Yylex(new BufferedReader(new FileReader(fileName)));
-	  }
-	  catch(Exception e)
-	  {
-	  }
-	}
-	public Token nextToken()
-	{
-		Token next=null;
-		try
-		{
-		 next=  tokenizer.getToken();
-		}
-		catch(Exception e)
-		{
-		}
-		return next;
-	}
-	}
+  Yylex tokenizer;
+  public  Lexer(String fileName)
+  {
+    try
+    {
+    tokenizer=new Yylex(new BufferedReader(new FileReader(fileName)));
+    }
+    catch(Exception e)
+    {
+    }
+  }
+  public Token nextToken()
+  {
+    Token next=null;
+    try
+    {
+     next=  tokenizer.getToken();
+    }
+    catch(Exception e)
+    {
+    }
+    return next;
+  }
+  }
 
 
 class Yylex {
@@ -38,7 +39,28 @@ class Yylex {
 	private final int YY_BOL = 128;
 	private final int YY_EOF = 129;
 
-	//initialize  variables to be used by class
+  //initialize  variables to be used by class
+  LinkedList<Integer> previousStates;
+  public void gotoState(int state) {
+    previousStates.addLast(yy_lexical_state);
+    yybegin(state);
+  }
+  public void exitState() {
+    if (previousStates.isEmpty()) {
+      //throw new Exception("what are you trying to do, man?");
+    }
+    //System.out.println(previousStates);
+    yybegin(previousStates.removeLast());
+  }
+  public void exitState(int nStatestoExit) {
+    if (previousStates.isEmpty()) {
+      //throw new Exception("what are you trying to do, man?");
+    }
+    for(int i=0; i < nStatestoExit; i++) {
+      previousStates.removeLast();
+    }
+    yybegin(previousStates.removeLast());
+  }
 	private java.io.BufferedReader yy_reader;
 	private int yy_buffer_index;
 	private int yy_buffer_read;
@@ -78,22 +100,51 @@ class Yylex {
 		yy_lexical_state = YYINITIAL;
 
 //Add code to be executed on initialization of the lexer
+  previousStates = new LinkedList<>();
 	}
 
 	private boolean yy_eof_done = false;
-	private final int NOOOO = 5;
-	private final int hello = 2;
+	private final int with = 13;
+	private final int equation = 16;
+	private final int math = 13;
+	private final int non = 10;
+	private final int commands = 19;
+	private final int MATH_MODE_STATE = 3;
+	private final int BACK_SLASH_STATE = 1;
+	private final int printable = 13;
+	private final int without = 19;
+	private final int stuff = 19;
+	private final int mode = 14;
+	private final int slash = 6;
+	private final int back = 5;
+	private final int content = 20;
+	private final int EQUATION_MODE_STATE = 4;
+	private final int list = 18;
+	private final int item = 17;
+	private final int comands = 7;
 	private final int YYINITIAL = 0;
-	private final int why = 3;
-	private final int what = 4;
-	private final int TEXT_COMAND = 1;
+	private final int ITEM_LIST_STATE = 2;
 	private final int yy_state_dtrans[] = {
 		0,
-		86,
-		88,
-		88,
-		88,
-		88
+		20,
+		73,
+		73,
+		73,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74,
+		74
 	};
 	private void yybegin (int state) {
 		yy_lexical_state = state;
@@ -263,19 +314,19 @@ class Yylex {
 		/* 14 */ YY_NO_ANCHOR,
 		/* 15 */ YY_NO_ANCHOR,
 		/* 16 */ YY_NO_ANCHOR,
-		/* 17 */ YY_NOT_ACCEPT,
-		/* 18 */ YY_NO_ANCHOR,
-		/* 19 */ YY_NOT_ACCEPT,
+		/* 17 */ YY_NO_ANCHOR,
+		/* 18 */ YY_NOT_ACCEPT,
+		/* 19 */ YY_NO_ANCHOR,
 		/* 20 */ YY_NOT_ACCEPT,
-		/* 21 */ YY_NOT_ACCEPT,
+		/* 21 */ YY_NO_ANCHOR,
 		/* 22 */ YY_NOT_ACCEPT,
-		/* 23 */ YY_NOT_ACCEPT,
+		/* 23 */ YY_NO_ANCHOR,
 		/* 24 */ YY_NOT_ACCEPT,
-		/* 25 */ YY_NOT_ACCEPT,
+		/* 25 */ YY_NO_ANCHOR,
 		/* 26 */ YY_NOT_ACCEPT,
-		/* 27 */ YY_NOT_ACCEPT,
+		/* 27 */ YY_NO_ANCHOR,
 		/* 28 */ YY_NOT_ACCEPT,
-		/* 29 */ YY_NOT_ACCEPT,
+		/* 29 */ YY_NO_ANCHOR,
 		/* 30 */ YY_NOT_ACCEPT,
 		/* 31 */ YY_NOT_ACCEPT,
 		/* 32 */ YY_NOT_ACCEPT,
@@ -345,42 +396,35 @@ class Yylex {
 		/* 96 */ YY_NOT_ACCEPT,
 		/* 97 */ YY_NOT_ACCEPT,
 		/* 98 */ YY_NOT_ACCEPT,
-		/* 99 */ YY_NOT_ACCEPT,
-		/* 100 */ YY_NOT_ACCEPT,
-		/* 101 */ YY_NOT_ACCEPT,
-		/* 102 */ YY_NOT_ACCEPT,
-		/* 103 */ YY_NOT_ACCEPT,
-		/* 104 */ YY_NOT_ACCEPT,
-		/* 105 */ YY_NOT_ACCEPT,
-		/* 106 */ YY_NOT_ACCEPT,
-		/* 107 */ YY_NOT_ACCEPT
+		/* 99 */ YY_NOT_ACCEPT
 	};
 	private int yy_cmap[] = unpackFromString(1,130,
-"14:10,22,14:2,27,14:23,21,14:53,19,1,20,14:3,11,23,4,2,7,26,18,14,24,14,17," +
-"10,6,8,3,16,14:2,12,9,5,14:2,25,14:2,13,14,15,14:2,0:2")[0];
+"14:10,28,14:2,27,14:77,19,1,20,14:3,11,21,4,2,7,26,18,14,22,14,17,10,6,8,3," +
+"16,23,14,12,9,5,14:2,25,14,24,13,14,15,14:2,0:2")[0];
 
-	private int yy_rmap[] = unpackFromString(1,108,
-"0,1,2,3,4,1:9,5,6,7,8,1,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,2" +
-"6,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,5" +
-"1,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,5,6,74," +
-"7,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94")[0];
+	private int yy_rmap[] = unpackFromString(1,100,
+"0,1:5,2,1,3,1:3,4,1,4:2,5,6,7,1,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22," +
+"23,24,25,26,27,28,29,3,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,4" +
+"7,48,49,50,51,52,53,54,55,56,57,5,6,58,59,60,61,62,63,64,65,66,67,68,69,70," +
+"71,72,73,74,75,76,77,78,79,80,81,82,4,83")[0];
 
-	private int yy_nxt[][] = unpackFromString(95,28,
-"1,2,3:11,18,3,18,3:3,18:2,4,5,3:5,-1:30,17,-1:2,19,20,21,-1,22,-1:2,23,-1:1" +
-"0,24,-1:6,3:11,-1,3,-1,3:3,-1:4,3:5,-1,4:21,-1,4:4,-1:2,84:14,14,84:6,-1,84" +
-":4,-1:2,85:14,15,85:6,-1,85:4,-1:2,87:14,16,87:6,-1,87:4,-1:4,25,-1:7,26,-1" +
-":28,89,-1:26,27,-1:24,28,-1:26,29,-1:16,91,-1:8,30,-1,90,-1:27,31,-1:24,32," +
-"-1:32,33,-1:35,35,-1:12,36,-1:50,37,-1:25,92,-1:22,39,-1:14,40,-1:29,6,-1:3" +
-"6,41,-1:18,100,-1:33,42,-1:23,43,-1:28,44,-1:41,45,-1:9,46,-1:32,47,-1:18,4" +
-"9,-1:48,50,-1:11,7,-1:28,52,-1:26,53,-1:24,54,-1:47,104,-1:6,55,-1:50,8,-1:" +
-"10,56,-1:31,58,-1:22,59,-1:36,60,-1:14,61,-1:33,62,-1:25,9,-1:21,63,-1:34,6" +
-"4,-1:29,65,-1:21,67,-1:29,10,-1:23,96,-1:28,68,-1:41,69,-1:16,11,-1:26,97,-" +
-"1:31,71,-1:24,72,-1:25,74,-1:33,75,-1:35,76,-1:16,77,-1:25,78,-1:33,98,-1:1" +
-"6,107:21,-1,107:4,-1:10,79,-1:25,80,-1:35,12,-1:20,82,-1:32,99,-1:23,83,-1:" +
-"33,13,-1:12,1,-1:12,103,-1:14,1,-1:34,34,-1:24,106,-1:32,38,-1:27,93,-1:42," +
-"51,-1:6,57,-1:34,66,-1:21,70,-1:30,73,-1:32,81,-1:16,84:21,-1,84:4,-1:10,48" +
-",-1:42,94,-1:4,85:21,-1,85:4,-1:2,87:21,-1,87:4,-1:10,95,-1:19,107:12,102,1" +
-"07:6,105,107,-1,107:4,-1:10,101,-1:19,107:19,105,107,-1,107:4,-1");
+	private int yy_nxt[][] = unpackFromString(84,29,
+"1,2,3:25,18,4,-1:32,22,-1:7,24,-1:18,42:14,8,42:11,-1:3,98:14,12,98:11,-1:3" +
+",71:14,16,71:11,-1:3,72:14,17,72:11,-1:30,4,1,5,6,19:2,21,19,23,19,25,19:2," +
+"27,19:8,29,19:5,18,4,-1:12,26,-1:20,33,-1:32,28,-1:29,34,-1:26,30,-1:14,76," +
+"-1:13,35,-1:26,31,-1,75,-1:23,36,-1:33,32,-1:46,37,-1:24,77,-1:25,39,-1:15," +
+"40,-1:30,7,-1:37,41,-1:25,42,-1:24,43,-1:29,44,-1:40,45,-1:12,46,-1:33,47,-" +
+"1:38,48,-1:14,9,-1:29,51,-1:27,52,-1:25,53,-1:50,10,-1:11,54,-1:22,55,-1:38" +
+",56,-1:23,57,-1:37,58,-1:21,59,-1:26,11,-1:21,98:6,99,98:7,12,98:6,96,98:4," +
+"-1:11,60,-1:30,61,-1:24,13,-1:25,62,-1:42,63,-1:20,64,-1:25,65,-1:32,66,-1:" +
+"36,67,-1:21,80,-1:17,90:26,-1:15,81,-1:16,98:14,14,98:11,-1:3,98:14,15,98:1" +
+"1,-1:2,1,-1:26,18,4,1,-1:32,87,-1:33,38,-1:28,78,-1:41,49,-1:7,98:6,69,98:7" +
+",12,98:11,-1:14,68,-1:17,71:26,-1:24,50,-1:7,98:7,70,98:6,12,98:11,-1:3,72:" +
+"26,-1:3,98:14,12,98:8,79,98:2,-1:3,90:12,84,90:6,86,90:6,-1:11,82,-1:20,98:" +
+"2,83,98:11,12,98:11,-1:3,98:14,12,98:6,85,98:4,-1:3,90:19,86,90:6,-1:3,98:1" +
+"4,12,98:6,88,98:4,-1:3,98:5,89,98:8,12,98:11,-1:3,98:8,91,98:5,12,98:11,-1:" +
+"3,98:6,92,98:7,12,98:11,-1:3,98:10,93,98:3,12,98:11,-1:3,98:8,94,98:5,12,98" +
+":11,-1:3,98:4,95,98:9,12,98:11,-1:3,98:14,12,98:7,97,98:3,-1:2");
 
 	public Token getToken ()
 		throws java.io.IOException {
@@ -431,68 +475,119 @@ class Yylex {
 					case -2:
 						break;
 					case 2:
-						{return new Token(Token.ERROR, "Invalid input: " + yytext());}
+						{
+  gotoState(BACK_SLASH_STATE);
+}
 					case -3:
 						break;
 					case 3:
-						{return new Token(Token.BODY, yytext());}
+						{
+}
 					case -4:
 						break;
 					case 4:
-						{}
+						{
+  System.out.println("new line");
+}
 					case -5:
 						break;
 					case 5:
-						{return new Token(Token.NEWLINE,yytext());}
+						{
+  exitState();
+  return new Token(Token.NEWLINE, '\\' + yytext());
+}
 					case -6:
 						break;
 					case 6:
-						{yybegin(TEXT_COMAND); return new Token(Token.DATE, yytext());}
+						{
+}
 					case -7:
 						break;
 					case 7:
-						{yybegin(TEXT_COMAND); return new Token(Token.TITLE, yytext());}
+						{}
 					case -8:
 						break;
 					case 8:
-						{yybegin(TEXT_COMAND); return new Token(Token.BF, yytext());}
+						{exitState(2);}
 					case -9:
 						break;
 					case 9:
-						{yybegin(TEXT_COMAND); return new Token(Token.SECTION, yytext());}
+						{}
 					case -10:
 						break;
 					case 10:
-						{yybegin(TEXT_COMAND); return new Token(Token.SUB_TITLE, yytext());}
+						{}
 					case -11:
 						break;
 					case 11:
-						{return new Token(Token.MAKE, yytext());}
+						{}
 					case -12:
 						break;
 					case 12:
-						{return new Token(Token.END, yytext());}
+						{}
 					case -13:
 						break;
 					case 13:
-						{return new Token(Token.BEGIN, yytext());}
+						{}
 					case -14:
 						break;
 					case 14:
-						{ System.out.println(TEXT_COMAND + ", " + hello + ", " + why + ", " + what + ", " + NOOOO); return null;}
+						{
+  gotoState(ITEM_LIST_STATE);
+  return new Token(Token.BEGIN, '\\' + yytext());
+}
 					case -15:
 						break;
 					case 15:
-						{ return new Token(Token.PACKAGE,yytext());}
+						{
+  gotoState(EQUATION_MODE_STATE);
+  return new Token(Token.BEGIN, '\\' + yytext());
+}
 					case -16:
 						break;
 					case 16:
-						{yybegin(YYINITIAL); return new Token(Token.TEXT, yytext());}
+						{
+  exitState();
+  return new Token(Token.DOC_CLASS, '\\' + yytext());
+}
 					case -17:
 						break;
-					case 18:
-						{return new Token(Token.ERROR, "Invalid input: " + yytext());}
+					case 17:
+						{
+  exitState();
+  return new Token(Token.PACKAGE, '\\' + yytext());
+}
 					case -18:
+						break;
+					case 19:
+						{
+}
+					case -19:
+						break;
+					case 21:
+						{
+}
+					case -20:
+						break;
+					case 23:
+						{
+}
+					case -21:
+						break;
+					case 25:
+						{
+}
+					case -22:
+						break;
+					case 27:
+						{
+}
+					case -23:
+						break;
+					case 29:
+						{
+}
+					case -24:
 						break;
 					default:
 						yy_error(YY_E_INTERNAL,false);
