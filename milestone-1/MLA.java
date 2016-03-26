@@ -17,34 +17,36 @@ import java.io.IOException;
  *
  */
 public class MLA {
-	public static void main(String[] args) {
-		String inFile = "Template1/Latex1.tex";
-		String outFile = "Template1/Sample.out";
+  public static void main(String[] args) {
+    String[] inFiles = new String[] {"Template1/Latex1.tex", "Template2/Latex2.tex", "Template3/Latex3.tex"};
+    String[] outFiles= new String[] {"Template1/Sample.out", "Template2/Sample.out", "Template3/Sample.out"};
+    for (int i=0; i < inFiles.length; i++) {
 
-		if (args.length > 1) {
-			inFile = args[0];
-			outFile = args[1];
-		}
+      String inFile = inFiles[i];
+      String outFile = outFiles[i];
 
-		Lexer lexer = new Lexer(inFile);
+      System.out.println("Start tokenizing file: " + inFile);
 
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+      Lexer lexer = new Lexer(inFile);
 
-			Token t;
+      try {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
 
-			while ((t = lexer.nextToken()) != null) {
-				System.out.println(t.toString());
-				writer.write(t.toString());
-				writer.newLine();
-			}
+        Token t;
 
-			writer.close();
+        while ((t = lexer.nextToken()) != null) {
+          //System.out.println(t.toString());
+          writer.write(t.toString());
+          writer.newLine();
+        }
 
-			System.out.println("Done tokenizing file: " + inFile);
-			System.out.println("Output written in file: " + outFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+        writer.close();
+
+        System.out.println("Done tokenizing file: " + inFile);
+        System.out.println("Output written in file: " + outFile);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
 }

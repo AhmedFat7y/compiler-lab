@@ -38,10 +38,12 @@ public class Lexer {
 %type Token
 %char
 %line
-%state BACK_SLASH_STATE, ITEM_LIST_STATE, MATH_MODE_STATE, EQUATION_MODE_STATE
+%state BACK_SLASH_STATE, DOCUMENT_STATE, ITEM_LIST_STATE, MATH_MODE_STATE, EQUATION_MODE_STATE, COMMAND_TEXT_STATE
 
 
 %{
+  String errorToken = "";
+  int nItems = 0;
   //initialize  variables to be used by class
   LinkedList<Integer> previousStates;
 
@@ -58,11 +60,11 @@ public class Lexer {
     yybegin(previousStates.removeLast());
   }
 
-  public void exitState(int nStatestoExit) {
+  public void exitState(int nExtraStatestoExit) {
     if (previousStates.isEmpty()) {
       //throw new Exception("what are you trying to do, man?");
     }
-    for(int i=0; i < nStatestoExit; i++) {
+    for(int i=0; i < nExtraStatestoExit; i++) {
       previousStates.removeLast();
     }
     yybegin(previousStates.removeLast());
@@ -89,6 +91,10 @@ END_EQUATION=end\{equation\}
 END_ITEM_LIST=end\{itemize\}
 BEGIN=(begin\{.*\})
 END=(end\{.*\})
+COMMAND_TEXT=\{.*\}
+
+%state  commands without content
+MAKETITLE=(maketitle)
 
 %state commands with content printable content
 TITLE=(title)
@@ -98,28 +104,42 @@ SECTION=(section)
 TEXTBF=(textbf)
 
 %state math mode stuff
-MATH_START_END=$
+MATH_START_END=\$
 DIGIT=[0-9]+
 OPERATOR=[-+*/^%!=|&]
-VARIABLE=[a-zA-Z]+
-FUNCTION=VARIABLE\(VARIABLE(, VARIABLE)*\)
+ALPHA=[a-zA-Z_]
+VARIABLE={ALPHA}({ALPHA}|{DIGIT})*
+FUNCTION={VARIABLE}\({VARIABLE}(,[ ]{VARIABLE})*\)
 
 %state equation stuff
-EQUATION_LABEL=\label\{.*\}
+LABEL=label\{.*\}
 
 
 %state item list stuff
 
 
-%state  commands without content
-MAKETITLE=(\\maketitle)
-
+%state generic ones
 TEXT=\{.+\}
-BODY=[^%\{\}\[\]\n\\]+
+BODY=[^%\{\}\[\]\n\\$]+
+WHITESPACE=[ \n\t\f]
+NO_WHITESPACE=[^ \n\t\f]
+
 
 %%
-<YYINITIAL> {BACK_SLASH} {
+<YYINITIAL, ITEM_LIST_STATE, EQUATION_MODE_STATE> {BACK_SLASH} {
   gotoState(BACK_SLASH_STATE);
+}
+<YYINITIAL, ITEM_LIST_STATE, EQUATION_MODE_STATE> {MATH_START_END} {
+  gotoState(MATH_MODE_STATE);
+  return new Token(Token.MATHMODE, yytext());
+}
+<YYINITIAL, ITEM_LIST_STATE, EQUATION_MODE_STATE> {COMMENT} {
+
+}
+<YYINITIAL> {BODY} {
+  return new Token(Token.BODY, yytext());
+}
+<YYINITIAL> . {
 }
 
 <BACK_SLASH_STATE> {BACK_SLASH} {
@@ -139,22 +159,104 @@ BODY=[^%\{\}\[\]\n\\]+
   return new Token(Token.BEGIN, '\\' + yytext());
 }
 <BACK_SLASH_STATE> {BEGIN_ITEM_LIST} {
+  nItems = 0;
   gotoState(ITEM_LIST_STATE);
   return new Token(Token.BEGIN, '\\' + yytext());
 }
 
-<BACK_SLASH_STATE> {BEGIN} {}
-<BACK_SLASH_STATE> {END} {exitState(2);}
-<BACK_SLASH_STATE> {TITLE} {}
-<BACK_SLASH_STATE> {SUBTITLE} {}
-<BACK_SLASH_STATE> {DATE} {}
-<BACK_SLASH_STATE> {SECTION} {}
-<BACK_SLASH_STATE> {TEXTBF} {}
+<BACK_SLASH_STATE> {BEGIN} {
+  //gotoState(DOCUMENT_STATE);
+  gotoState(YYINITIAL);
+  return new Token(Token.BEGIN, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {END_ITEM_LIST} {
+  exitState(2);
+  if(nItems != 0) {
+    return new Token(Token.END, '\\' + yytext());
+  } else {
+    return new Token(Token.ERROR, "Line: " + yyline + " Item list with missing \\item");
+  }
+}
+<BACK_SLASH_STATE> {END} {
+  exitState(2);
+  return new Token(Token.END, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {TITLE} {
+  gotoState(COMMAND_TEXT_STATE);
+  return new Token(Token.TITLE, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {SUBTITLE} {
+  gotoState(COMMAND_TEXT_STATE);
+  return new Token(Token.SUB_TITLE, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {DATE} {
+  gotoState(COMMAND_TEXT_STATE);
+  return new Token(Token.DATE, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {SECTION} {
+  gotoState(COMMAND_TEXT_STATE);
+  return new Token(Token.SECTION, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {TEXTBF} {
+  gotoState(COMMAND_TEXT_STATE);
+  return new Token(Token.BF, '\\' + yytext());
+}
+<BACK_SLASH_STATE> {MAKETITLE} {
+  exitState();
+  return new Token(Token.MAKE, '\\' + yytext());
+}
 
-<BACK_SLASH_STATE> . {
+<BACK_SLASH_STATE> {LABEL} {
+  exitState();
+  return new Token(Token.LABEL, '\\' + yytext());
 }
-<YYINITIAL> . {
+
+
+<BACK_SLASH_STATE> {WHITESPACE} {
+  exitState();
+  Token t = new Token(Token.ERROR,
+  "Line: " + (yyline + 1)
+  + " Undefined control sequence: "
+  + '\\' + errorToken);
+  errorToken = "";
+  return t;
 }
+
+<BACK_SLASH_STATE> {NO_WHITESPACE} {
+  errorToken += yytext();
+}
+
+<COMMAND_TEXT_STATE> {COMMAND_TEXT} {
+  exitState(1);
+  return new Token(Token.TEXT, yytext());
+}
+
+<ITEM_LIST_STATE> ^[\\]item[ ] {
+  nItems++;
+  return new Token(Token.ITEM, yytext());
+}
+<ITEM_LIST_STATE> [^$\n\\]+ {
+  return new Token(Token.BODY, yytext());
+}
+
+<EQUATION_MODE_STATE> {FUNCTION} {
+  return new Token(Token.FUNC, yytext());
+}
+
+<MATH_MODE_STATE> {MATH_START_END} {
+  exitState();
+}
+<MATH_MODE_STATE, EQUATION_MODE_STATE> {DIGIT} {
+  return new Token(Token.NM, yytext());
+}
+<MATH_MODE_STATE, EQUATION_MODE_STATE> {VARIABLE} {
+  return new Token(Token.VAR, yytext());
+}
+<MATH_MODE_STATE, EQUATION_MODE_STATE> {OPERATOR} {
+  return new Token(Token.OPERATOR, yytext());
+}
+
+
 <YYINITIAL, BACK_SLASH_STATE, ITEM_LIST_STATE, MATH_MODE_STATE, EQUATION_MODE_STATE> [\r]?[\n] {
-  System.out.println("new line");
+  //System.out.println("new line");
 }
