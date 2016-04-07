@@ -13,28 +13,25 @@ NEWLINE
 NEWLINE
 BEGIN : \begin{equation}
 LABEL: \label{eq1}
-NM: 2
-VAR: x
-OPERATOR: -
-NM: 5
-VAR: y
-OPERATOR: =
-NM: 8
+FUNC: 2x-5y=8
 END : \end{equation}
 NEWLINE
 BEGIN : \begin{equation}
 LABEL: \label{eq2}
-FUNC: f(x)
-OPERATOR: =
-VAR: x
-OPERATOR: ^
-NM: 2
+FUNC: f(x)=x^2
 END : \end{equation}
 SECTION : \section
 TEXT : Errors
 BODY : In latex you cant have a backslash within a text, otherwise, it will cause an error as undefined control sequence. In this milestone you have to include the 
 TEXTBF : \textbf
 TEXT : line number
-BODY :  that caused the error in the error message. 
-ERROR Line: 29 Undefined control sequence: \errorcoming
+BODY : that
+BODY : caused
+BODY : the
+BODY : error
+BODY : in
+BODY : the
+BODY : error
+BODY : message
+ERROR Line: 28 Undefined control sequence: \errorcoming
 END : \end{document}

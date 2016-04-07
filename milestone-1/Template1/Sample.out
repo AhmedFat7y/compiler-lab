@@ -11,12 +11,12 @@ TEXT : Item List
 BODY : In this template you have an itemized list that you have to generate the tokens for using the lexical analyzer implemented in this milestone. 
 NEWLINE
 BEGIN : \begin{itemize}
-ITEM: \item 
-BODY : item 1
-ITEM: \item 
-BODY : item 2
-ITEM: \item 
-BODY : item 3
+ITEM: \item
+BODY : item 1 
+ITEM: \item
+BODY : item 2 
+ITEM: \item
+BODY : item 3 
 END : \end{itemize}
 SECTION : \section
 TEXT : Math Mode
