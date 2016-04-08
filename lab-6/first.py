@@ -45,20 +45,16 @@ def get_first_of_rule(head, first_sets, rules):
   rule = rules[head]
   first_set = []
   for term in rule.terms:
-    first_set.extend(get_first_of_term(term, first_sets, rules))
+    term_first_set = get_first_of_term(term, first_sets, rules)
+    if term not in first_sets:
+      first_sets[term] = []
+    first_sets[term].extend(term_first_set)
+    first_set.extend(term_first_set)
   return first_set
-
-
-def convert_rules_list_to_dict(rules):
-  rules_dict = {}
-  for rule in rules:
-    rules_dict[rule.head] = rule
-  return rules_dict
 
 
 def get(variables, rules):
   first_sets = {}
-  rules = convert_rules_list_to_dict(rules)
   for i in range(len(variables)):
     for variable in variables:
       if variable not in first_sets:

@@ -27,6 +27,15 @@ class Rule:
         return True
     return False
 
+  def __hash__(self):
+    return hash(self.head) + hash(tuple(self.terms))
+
+  def __eq__(self, other):
+    if isinstance(other, Rule):
+      return self.head == other.head and self.terms == other.terms
+    else:
+      return other == self
+
   def __repr__(self):
     result = self.head
     result += ' -> '
@@ -37,9 +46,9 @@ class Rule:
 
 
 class Term:
-  def __init__(self, symbols_list=None):
-    if symbols_list:
-      self.symbols = symbols_list
+  def __init__(self, symbols=None):
+    if symbols:
+      self.symbols = symbols
     else:
       self.symbols = []
 
@@ -51,6 +60,18 @@ class Term:
       if symbol.is_epsilon():
         return True
     return False
+
+  def __len__(self):
+    return len(self.symbols)
+
+  def __hash__(self):
+    return hash(tuple(self.symbols))
+
+  def __eq__(self, other):
+    if isinstance(other, Term):
+      return self.symbols == other.symbols
+    else:
+      return other == self
 
   def __repr__(self):
     result = ''.join(map(str, self.symbols))
@@ -65,5 +86,40 @@ class Symbol:
   def is_epsilon(self):
     return self.symbol_char == '!'
 
+  def __hash__(self):
+    return hash(self.symbol_char) + hash(self.isVariable)
+
+  def __eq__(self, other):
+    if isinstance(other, Symbol):
+      return self.symbol_char == other.symbol_char
+    else:
+      return other == self
+
   def __repr__(self):
     return self.symbol_char
+
+
+class ParsingTable:
+  def __init__(self, variables, terminals):
+    self.variables = variables
+    self.terminals = terminals
+    self.table_content = {}
+
+  def add(self, variable, terminal, term):
+    self.table_content[(variable, terminal)] = term
+
+  def get(self, variable, terminal):
+    cell_cotntent = self.table_content[(variable, terminal)]
+    return cell_cotntent if cell_cotntent else 'null'
+
+  def __repr__(self):
+    max_length = 3 + max(map(lambda x: len(str(x)) if x else 0, self.table_content.values()))
+    # decrement max_length by 1 because of comma added
+    result = (' ' * max_length) + ''.join(map(lambda x: x.ljust(max_length), self.terminals))
+    result += '\n'
+    for variable in self.variables:
+      result += variable.ljust(max_length)
+      for terminal in self.terminals:
+        result += str(self.get(variable, terminal)).ljust(max_length)
+      result += '\n'
+    return result

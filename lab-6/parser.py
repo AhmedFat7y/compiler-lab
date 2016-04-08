@@ -1,6 +1,5 @@
 import re
-import first
-import follow
+
 from models import Term, Rule, Symbol
 
 
@@ -100,21 +99,3 @@ def parse(input_file_name):
   rules = parse_rules(raw_rules, variables, terminals)
   rules = build_rules(rules)
   return variables, terminals, rules
-
-
-if __name__ == "__main__":
-  files = ['Sample4.in', 'Sample5.in']
-  for file in files:
-    variables, terminals, rules = parse(file)
-    first_sets = first.get(variables, rules)
-    follow_sets = follow.get(variables, rules, first_sets)
-    print('Rules: ')
-    print('\n'.join(map(str, rules)))
-    print('       ---------------       ')
-    print('First Sets: ')
-    print(first_sets)
-    print('       ---------------       ')
-    print('Follow Sets: ')
-    print(follow_sets)
-    # print('       ---------------       ')
-    print ('       ==================       ')
