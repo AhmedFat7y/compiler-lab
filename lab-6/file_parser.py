@@ -31,21 +31,13 @@ def build_regex(items):
   return pattern
 
 
-def parse_term(raw_term, regex):
-  raw_symbols = regex.findall(raw_term)
-  term = []
-  for raw_symbol in raw_symbols:
-    term.append(raw_symbol)
-  return term
-
-
 def parse_rule_body(raw_body, variables, terminals):
   variables_regex = build_regex(variables)
   terminals_regex = build_regex(terminals)
   pattern = re.compile("(?P<variable>{0})|(?P<terminal>{1})".format(variables_regex, terminals_regex))
   body = []
   for raw_term in raw_body.split('|'):
-    term = parse_term(raw_term, pattern)
+    term = pattern.findall(raw_term)
     body.append(term)
   return body
 
@@ -91,11 +83,29 @@ def build_rules(rules):
   return rules_objs
 
 
-def parse(input_file_name):
-  lines = read_input_file(input_file_name)
+def parse_input_rules(lines):
   raw_vriables, raw_terminals, raw_rules = divide_data(lines)
   terminals = parse_terminals(raw_terminals)
   variables = parse_variables(raw_vriables)
   rules = parse_rules(raw_rules, variables, terminals)
   rules = build_rules(rules)
   return variables, terminals, rules
+
+
+def parse_input(lines, terminals):
+  output = []
+  for str_to_parse in lines:
+    terminal_regex = build_regex(terminals)
+    pattern = re.compile('({0})'.format(terminal_regex))
+    output.append(pattern.findall(str_to_parse))
+  return output
+
+
+def parse(input_file_name, rules=True, terminals=None):
+  lines = read_input_file(input_file_name)
+  if rules:
+    return parse_input_rules(lines)
+  elif terminals:
+    return parse_input(lines, terminals)
+  else:
+    print('YOU SHALL NOT PASS.')

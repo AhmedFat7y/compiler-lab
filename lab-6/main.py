@@ -2,8 +2,7 @@ import first
 import follow
 import table_builder
 
-from parser import parse
-# import os
+from file_parser import parse
 
 
 def convert_rules_list_to_dict(rules):
@@ -14,12 +13,14 @@ def convert_rules_list_to_dict(rules):
 
 
 if __name__ == "__main__":
-  files = ['Sample4.in', 'Sample5.in']
+  files = ['Sample4.in']
   for file in files:
     variables, terminals, rules = parse(file)
     rules_dict = convert_rules_list_to_dict(rules)
     first_sets = first.get(variables, rules_dict)
     follow_sets = follow.get(variables, rules, first_sets)
+    # change terminals to include $ instead of !
+    terminals[-1] = '$'
     parsing_table = table_builder.build(variables, terminals, first_sets, follow_sets, rules_dict)
     print('Rules: ')
     print('\n'.join(map(str, rules)))
@@ -32,4 +33,10 @@ if __name__ == "__main__":
     # print('              ---------------')
     print('Parsing Table: ')
     print(parsing_table)
+    print('              ---------------')
+    for i in range(1, 5):
+      output = parse('input{0}.in'.format(i), rules=False, terminals=terminals)
+      print('-- Inputs: ')
+      print('--', output)
+      print('              ---------------')
     print ('              =====================')

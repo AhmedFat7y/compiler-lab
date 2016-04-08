@@ -26,7 +26,7 @@ def get_first_of_term(term, first_sets, rules):
       temp_first_set = []
       if symbol.symbol_char in first_sets:
         temp_first_set = first_sets[symbol.symbol_char]
-        first_set.extend(temp_first_set)
+      first_set.extend(temp_first_set)
       if contains_epsilon(temp_first_set):
         first_set.remove('!')
       else:
@@ -38,6 +38,7 @@ def get_first_of_term(term, first_sets, rules):
       break
   if has_episoln:
     first_set.append('!')
+  print (first_sets)
   return first_set
 
 

@@ -40,7 +40,7 @@ class Rule:
     result = self.head
     result += ' -> '
     # result+= '['
-    result += ' | '.join(map(str, self.terms))
+    result += '|'.join(map(str, self.terms))
     # result += ']'
     return result
 
