@@ -92,6 +92,8 @@ class Symbol:
   def __eq__(self, other):
     if isinstance(other, Symbol):
       return self.symbol_char == other.symbol_char
+    elif isinstance(other, str):
+      return self.symbol_char == other
     else:
       return other == self
 
@@ -109,8 +111,10 @@ class ParsingTable:
     self.table_content[(variable, terminal)] = term
 
   def get(self, variable, terminal):
-    cell_cotntent = self.table_content[(variable, terminal)]
-    return cell_cotntent if cell_cotntent else 'null'
+    if (variable, terminal) not in self.table_content:
+      return None
+    cell_content = self.table_content[(variable, terminal)]
+    return cell_content if cell_content else Term([Symbol('null')])
 
   def __repr__(self):
     max_length = 3 + max(map(lambda x: len(str(x)) if x else 0, self.table_content.values()))

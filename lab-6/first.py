@@ -38,7 +38,6 @@ def get_first_of_term(term, first_sets, rules):
       break
   if has_episoln:
     first_set.append('!')
-  print (first_sets)
   return first_set
 
 
