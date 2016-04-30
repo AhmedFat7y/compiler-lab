@@ -24,6 +24,8 @@ terminal	BF, TITLE, TEXT, SECTION, LABEL, OPERATOR;
 terminal  DATE, BEGIN, NM, NEWLINE, SUB_TITLE, MATHMODE;
 terminal  BODY, END, PACKAGE, FUNC, ERROR, VAR, MAKE;
 terminal  DOC_CLASS, ITEM;
+terminal  BEGIN_DOCUMENT, BEGIN_ITEMIZE, BEGIN_EQUATION; 
+terminal  END_DOCUMENT, END_ITEMIZE, END_EQUATION; 
 
 /* Non-terminals */
 nonterminal	String   file, document, starters, content;
