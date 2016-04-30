@@ -7,9 +7,12 @@ parser code
     @Override
     public void syntax_error(Symbol cur_token) {
         System.out.println("syntax_error here: " + cur_token.value);
-        List<Integer> l = expected_token_ids();
-        System.out.println(l);
+        //List<Integer> l = expected_token_ids();
+        //System.out.println(l);
         super.syntax_error(cur_token);
+    }
+    public void lhs(String lhStr) {
+      System.out.println("Production: " + lhStr);
     }
 //    report_fatal_error
 //    @Override
@@ -29,70 +32,89 @@ terminal  DOC_CLASS, ITEM;
 nonterminal	String   file, document, starters, content;
 nonterminal String   item_list, items, item_content;
 nonterminal String   mathmode, mathmode_content;
-
+nonterminal String   equationmode, equationmode_content;
 
 
 
 /* The grammar */
 
 file ::= DOC_CLASS PACKAGE BEGIN:t1 document:d END:t2
-			  {:RESULT = "" + d;:}
-			| error:e
-                      {:RESULT = "" + "  --->  file parse error " + e;:}
+            {:lhs("file"); RESULT = "" + d;:}
+        | error:e
+            {:lhs("file"); RESULT = "" + "  --->  file parse error " + e;:}
       ;
 
 document ::= starters:s content:c
-            {:RESULT = "" + s + '\n' + c;:}
+              {:lhs("document"); RESULT = "" + s + '\n' + c;:}
           | error:e
-                      {:RESULT = "" + "  --->  document parse error " + e;:}
+              {:lhs("document"); RESULT = "" + "  --->  document parse error " + e;:}
           ;
 
 starters ::= TITLE TEXT:title DATE TEXT:date MAKE
-            {:RESULT = "" + title + '\n' + date + '\n';:}
-          | error:e
-                      {:RESULT = "" + "  --->  starters parse error " + e;:}
-          ;
+              {:lhs("starters"); RESULT = "" + title + '\n' + date + '\n';:}
+            | error:e
+                {:lhs("starters"); RESULT = "" + "  --->  starters parse error " + e;:}
+            ;
 
 content ::= SECTION TEXT:sectionTitle content:c
-            {:RESULT = "" + '\n' + sectionTitle + '\n' + c;:}
+              {:lhs("content"); RESULT = "" + '\n' + sectionTitle + '\n' + c;:}
           | BODY:b content:c
-            {:RESULT = "" + b + c;:}
+              {:lhs("content"); RESULT = "" + b + c;:}
           | NEWLINE content:c
-            {:RESULT = "" + "\n newline \n" + c;:}
+              {:lhs("content"); RESULT = "" + "\n newline \n" + c;:}
+          | equationmode:em content:c
+              {:lhs("content"); RESULT = "" + em + c;:}
           | item_list:i content:c
-            {:RESULT = "" + i + c;:}
+              {:lhs("content"); RESULT = "" + i + c;:}
           | mathmode:mm content:c
-            {:RESULT = "" + mm + c;:}
+              {:lhs("content"); RESULT = "" + mm + c;:}
+          | ERROR
+              {:lhs("content"); RESULT = "parse error.";:}
           | error:e
-                      {:RESULT = "" + "  --->  content parse error " + e;:}
+              {:lhs("content"); RESULT = "" + "  --->  content parse error " + e;:}
           ;
 
 item_list ::= BEGIN items:i END
-              {:RESULT = "" + i;:}
+                {:lhs("item_list"); RESULT = "" + i;:}
           ;
 
-items ::= ITEM BODY:b items:i
-          {:RESULT = "" + b + '\n' + i;:}
+items ::= ITEM item_content:ic items:i
+            {:lhs("items"); RESULT = "" + ic + '\n' + i;:}
         | error:e
-                      {:RESULT = "" + "  --->  item parse error " + e;:}
+            {:lhs("items"); RESULT = "" + "  --->  item parse error " + e;:}
         ;
 
 mathmode ::= MATHMODE mathmode_content:mc MATHMODE
-              {:RESULT = "" + mc;:}
+                {:lhs("mathmode"); RESULT = "" + mc;:}
             ;
 
 mathmode_content ::= NM:n mathmode_content:mc
-                      {:RESULT = "" + n + mc;:}
+                        {:lhs("mathmode_content"); RESULT = "" + n + mc;:}
                     | VAR:v mathmode_content:mc
-                      {:RESULT = "" + v + mc;:}
+                        {:lhs("mathmode_content"); RESULT = "" + v + mc;:}
+                    | OPERATOR:o mathmode_content:mc
+                        {:lhs("mathmode_content"); RESULT = "" + o + mc;:}
                     | error:e
-                      {:RESULT = "" + "  --->  mathmode_content parse error " + e;:}
+                        {:lhs("mathmode_content"); RESULT = "" + "  --->  mathmode_content parse error " + e;:}
                     ;
 
-item_content ::= BODY:b item_content
-                  {:RESULT = "" + b;:}
+item_content ::= BODY:b item_content:ic
+                    {:lhs("item_content"); RESULT = "" + b + ic;:}
+                | mathmode:mm item_content:ic
+                    {:lhs("item_content"); RESULT = "" + mm + ic;:}
                 | error:e
-                      {:RESULT = "" + "  --->  item_content parse error " + e;:}
+                    {:lhs("item_content"); RESULT = "" + "  --->  item_content parse error " + e;:}
                 ;
 
+equationmode ::= BEGIN LABEL equationmode_content:emc END
+                    {:lhs("equationmode"); RESULT = "" + emc;:}
+                ;
 
+equationmode_content ::= FUNC:f equationmode_content:emc
+                            {:lhs("equationmode_content"); RESULT = "" + f + emc;:}
+                        | mathmode_content:n equationmode_content:emc
+                            {:lhs("equationmode_content"); RESULT = "" + n + emc;:}
+
+                        | error:e
+                            {:lhs("equationmode_content"); RESULT = "" + "  --->  equationmode_content parse error " + e;:}
+                        ;
