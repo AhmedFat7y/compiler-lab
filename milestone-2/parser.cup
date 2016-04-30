@@ -1,21 +1,32 @@
-
 import java_cup.runtime.*;
+parser code
+{:
+    @Override
+    public void syntax_error(Symbol cur_token) {
+        System.out.println("syntax_error " + cur_token);
+    }
+    @Override
+    public void unrecovered_syntax_error(Symbol cur_token) {
+        System.out.println("syntax_error " + cur_token);
+    }
+
+:}
 
 /* Terminals (tokens returned by the scanner). */
-terminal			SM, AO, ID, NM;
+terminal			BF, TITLE, TEXT, SECTION, LABEL, OPERATOR, DATE, BEGIN, NM, NEWLINE, SUB_TITLE, MATHMODE, BODY, END, PACKAGE, FUNC, ERROR, VAR, MAKE, DOC_CLASS, ITEM;
 
 /* Non-terminals */
-nonterminal	Boolean		program, statement;
+nonterminal	Boolean		document, file;
 
 
 
 
 /* The grammar */
 
-program ::= program:p statement:e SM
-			  {:RESULT = p && e;:}
-			  |  {:RESULT = true;:};
-statement ::= ID AO NM
+file ::= DOC_CLASS PACKAGE BEGIN TEXT:t1 END TEXT:t2
+			  {:RESULT = t1.equals("{document}") && t2.equals("{document}");:}
+			  |  {:RESULT = false;:};
+document ::= NM
 			  {:RESULT = true;:}
 			  | error
 			  {:RESULT = false;:};
