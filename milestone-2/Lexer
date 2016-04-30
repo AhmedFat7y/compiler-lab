@@ -135,30 +135,42 @@ NO_WHITESPACE=[^ \n\t\f]
 }
 <BACK_SLASH_STATE> {BEGIN_EQUATION} {
   gotoState(EQUATION_MODE_STATE);
-  return getSym(sym.BEGIN, '\\' + yytext());
+  return getSym(sym.BEGIN_EQUATION, '\\' + yytext());
 }
 <BACK_SLASH_STATE> {BEGIN_ITEM_LIST} {
   nItems = 0;
   gotoState(ITEM_LIST_STATE);
-  return getSym(sym.BEGIN, '\\' + yytext());
+  return getSym(sym.BEGIN_ITEMIZE, '\\' + yytext());
 }
 
 <BACK_SLASH_STATE> {BEGIN} {
   //gotoState(DOCUMENT_STATE);
   gotoState(YYINITIAL);
-  return getSym(sym.BEGIN, '\\' + yytext());
+  if (yytext().endsWith("{document}") {
+    return getSym(sym.BEGIN_DOCUMENT, yytext());
+  } else {
+    return getSym(sym.BEGIN, '\\' + yytext());
+  }
 }
 <BACK_SLASH_STATE> {END_ITEM_LIST} {
   exitState(2);
   if(nItems != 0) {
-    return getSym(sym.END, '\\' + yytext());
+    return getSym(sym.END_ITEMIZE, '\\' + yytext());
   } else {
     return getSym(sym.ERROR, "Line: " + yyline + " Item list with missing \\item");
   }
 }
+<BACK_SLASH_STATE> {END_EQUATION} {
+  exitState(2);
+  return getSym(sym.END_EQUATION, '\\' + yytext());
+}
 <BACK_SLASH_STATE> {END} {
   exitState(2);
-  return getSym(sym.END, '\\' + yytext());
+  if (yytext().endsWith("{document}") {
+    return getSym(sym.END_DOCUMENT, yytext());
+  } else {
+    return getSym(sym.END, '\\' + yytext());
+  }
 }
 <BACK_SLASH_STATE> {TITLE} {
   gotoState(COMMAND_TEXT_STATE);
