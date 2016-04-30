@@ -4,6 +4,8 @@
 //----------------------------------------------------
 
 import java_cup.runtime.*;
+import java.lang.reflect.*;
+import java.util.*;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20150930 (SVN rev 66) generated parser.
@@ -29,8 +31,8 @@ public class parser extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\005\000\002\003\010\000\002\002\004\000\002\003" +
-    "\002\000\002\002\003\000\002\002\003" });
+    "\000\003\000\002\002\006\000\002\002\004\000\002\002" +
+    "\002" });
 
   /** Access to production table. */
   public short[][] production_table() {return _production_table;}
@@ -38,11 +40,10 @@ public class parser extends java_cup.runtime.lr_parser {
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\011\000\006\002\uffff\027\004\001\002\000\004\022" +
+    "\000\007\000\006\002\uffff\027\004\001\002\000\004\022" +
     "\007\001\002\000\004\002\006\001\002\000\004\002\000" +
-    "\001\002\000\004\013\010\001\002\000\004\006\011\001" +
-    "\002\000\004\021\012\001\002\000\004\006\013\001\002" +
-    "\000\004\002\001\001\002" });
+    "\001\002\000\004\013\010\001\002\000\004\021\011\001" +
+    "\002\000\004\002\001\001\002" });
 
   /** Access to parse-action table. */
   public short[][] action_table() {return _action_table;}
@@ -50,10 +51,9 @@ public class parser extends java_cup.runtime.lr_parser {
   /** <code>reduce_goto</code> table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\011\000\004\003\004\001\001\000\002\001\001\000" +
+    "\000\007\000\004\002\004\001\001\000\002\001\001\000" +
     "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
-    "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
-    "\001" });
+    "\001\001\000\002\001\001" });
 
   /** Access to <code>reduce_goto</code> table. */
   public short[][] reduce_table() {return _reduce_table;}
@@ -94,12 +94,19 @@ public class parser extends java_cup.runtime.lr_parser {
 
     @Override
     public void syntax_error(Symbol cur_token) {
-        System.out.println("syntax_error " + cur_token);
+        System.out.println("syntax_error here: " + cur_token.value);
+        List<Integer> l = expected_token_ids();
+        System.out.println(l);
+        for (int n : l) {
+          System.out.println(n);
+        }
+        super.syntax_error(cur_token);
     }
-    @Override
-    public void unrecovered_syntax_error(Symbol cur_token) {
-        System.out.println("syntax_error " + cur_token);
-    }
+//    report_fatal_error
+//    @Override
+//    public void unrecovered_syntax_error(Symbol cur_token) {
+//        System.out.println("syntax_error " + cur_token.getClass());
+//    }
 
 
 
@@ -128,17 +135,17 @@ class CUP$parser$actions {
       switch (CUP$parser$act_num)
         {
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 0: // file ::= DOC_CLASS PACKAGE BEGIN TEXT END TEXT 
+          case 0: // file ::= DOC_CLASS PACKAGE BEGIN END 
             {
-              Boolean RESULT =null;
-		int t1left = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).left;
-		int t1right = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)).right;
-		Object t1 = (Object)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-2)).value;
+              String RESULT =null;
+		int t1left = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).left;
+		int t1right = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).right;
+		Object t1 = (Object)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-1)).value;
 		int t2left = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).left;
 		int t2right = ((java_cup.runtime.Symbol)CUP$parser$stack.peek()).right;
 		Object t2 = (Object)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
-		RESULT = t1.equals("{document}") && t2.equals("{document}");
-              CUP$parser$result = parser.getSymbolFactory().newSymbol("file",1, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-5)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
+		RESULT = t1 + "\n" + t2;
+              CUP$parser$result = parser.getSymbolFactory().newSymbol("file",0, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
 
@@ -148,7 +155,7 @@ class CUP$parser$actions {
               Object RESULT =null;
 		int start_valleft = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).left;
 		int start_valright = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).right;
-		Boolean start_val = (Boolean)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-1)).value;
+		String start_val = (String)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-1)).value;
 		RESULT = start_val;
               CUP$parser$result = parser.getSymbolFactory().newSymbol("$START",0, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
@@ -159,27 +166,9 @@ class CUP$parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 2: // file ::= 
             {
-              Boolean RESULT =null;
-		RESULT = false;
-              CUP$parser$result = parser.getSymbolFactory().newSymbol("file",1, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
-            }
-          return CUP$parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 3: // document ::= NM 
-            {
-              Boolean RESULT =null;
-		RESULT = true;
-              CUP$parser$result = parser.getSymbolFactory().newSymbol("document",0, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
-            }
-          return CUP$parser$result;
-
-          /*. . . . . . . . . . . . . . . . . . . .*/
-          case 4: // document ::= error 
-            {
-              Boolean RESULT =null;
-		RESULT = false;
-              CUP$parser$result = parser.getSymbolFactory().newSymbol("document",0, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
+              String RESULT =null;
+		RESULT = "no way";
+              CUP$parser$result = parser.getSymbolFactory().newSymbol("file",0, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
 

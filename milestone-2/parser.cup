@@ -1,14 +1,24 @@
 import java_cup.runtime.*;
+import java.lang.reflect.*;
+import java.util.*;
+
 parser code
 {:
     @Override
     public void syntax_error(Symbol cur_token) {
-        System.out.println("syntax_error " + cur_token);
+        System.out.println("syntax_error here: " + cur_token.value);
+        List<Integer> l = expected_token_ids();
+        System.out.println(l);
+        for (int n : l) {
+          System.out.println(n);
+        }
+        super.syntax_error(cur_token);
     }
-    @Override
-    public void unrecovered_syntax_error(Symbol cur_token) {
-        System.out.println("syntax_error " + cur_token);
-    }
+//    report_fatal_error
+//    @Override
+//    public void unrecovered_syntax_error(Symbol cur_token) {
+//        System.out.println("syntax_error " + cur_token.getClass());
+//    }
 
 :}
 
@@ -16,17 +26,14 @@ parser code
 terminal			BF, TITLE, TEXT, SECTION, LABEL, OPERATOR, DATE, BEGIN, NM, NEWLINE, SUB_TITLE, MATHMODE, BODY, END, PACKAGE, FUNC, ERROR, VAR, MAKE, DOC_CLASS, ITEM;
 
 /* Non-terminals */
-nonterminal	Boolean		document, file;
+nonterminal	String	 file;
 
 
 
 
 /* The grammar */
 
-file ::= DOC_CLASS PACKAGE BEGIN TEXT:t1 END TEXT:t2
-			  {:RESULT = t1.equals("{document}") && t2.equals("{document}");:}
-			  |  {:RESULT = false;:};
-document ::= NM
-			  {:RESULT = true;:}
-			  | error
-			  {:RESULT = false;:};
+file ::= DOC_CLASS PACKAGE BEGIN:t1 END:t2
+			  {:RESULT = t1 + "\n" + t2;:}
+			  |  {:RESULT = "no way";:};
+
