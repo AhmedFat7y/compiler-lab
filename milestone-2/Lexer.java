@@ -40,7 +40,7 @@ class Lexer implements java_cup.runtime.Scanner {
     yybegin(previousStates.removeLast());
   }
   public Symbol getSym(int symVal, String token) {
-    System.out.println("Token: " + token);
+    System.out.println("Token: " + token + " == " + symVal);
     return new Symbol(symVal, token);
   }
 	private java.io.BufferedReader yy_reader;
@@ -731,6 +731,7 @@ class Lexer implements java_cup.runtime.Scanner {
 					case 27:
 						{
   exitState();
+  return getSym(sym.MATHMODE, yytext());
 }
 					case -28:
 						break;

@@ -9,9 +9,6 @@ parser code
         System.out.println("syntax_error here: " + cur_token.value);
         List<Integer> l = expected_token_ids();
         System.out.println(l);
-        for (int n : l) {
-          System.out.println(n);
-        }
         super.syntax_error(cur_token);
     }
 //    report_fatal_error
@@ -29,7 +26,9 @@ terminal  BODY, END, PACKAGE, FUNC, ERROR, VAR, MAKE;
 terminal  DOC_CLASS, ITEM;
 
 /* Non-terminals */
-nonterminal	String	 file, document, starters, content;
+nonterminal	String   file, document, starters, content;
+nonterminal String   item_list, items, item_content;
+nonterminal String   mathmode, mathmode_content;
 
 
 
@@ -38,24 +37,62 @@ nonterminal	String	 file, document, starters, content;
 
 file ::= DOC_CLASS PACKAGE BEGIN:t1 document:d END:t2
 			  {:RESULT = "" + d;:}
-			| error
-        {:RESULT = "" + "parse error";:};
+			| error:e
+                      {:RESULT = "" + "  --->  file parse error " + e;:}
+      ;
 
 document ::= starters:s content:c
             {:RESULT = "" + s + '\n' + c;:}
-          | error
-            {:RESULT = "" + "parse error";:};
+          | error:e
+                      {:RESULT = "" + "  --->  document parse error " + e;:}
+          ;
 
 starters ::= TITLE TEXT:title DATE TEXT:date MAKE
             {:RESULT = "" + title + '\n' + date + '\n';:}
-          | error
-            {:RESULT = "" + "parse error";:};
+          | error:e
+                      {:RESULT = "" + "  --->  starters parse error " + e;:}
+          ;
 
-content ::= SECTION TEXT:sectionTitle
-            {:RESULT = "" + sectionTitle + '\n';:}
-          | BODY:b
-            {:RESULT = "" + b;:}
-          | NEWLINE
-            {:RESULT = "" + "\n newline \n";:}
-          | error
-            {:RESULT = "" + "parse error";:};
+content ::= SECTION TEXT:sectionTitle content:c
+            {:RESULT = "" + '\n' + sectionTitle + '\n' + c;:}
+          | BODY:b content:c
+            {:RESULT = "" + b + c;:}
+          | NEWLINE content:c
+            {:RESULT = "" + "\n newline \n" + c;:}
+          | item_list:i content:c
+            {:RESULT = "" + i + c;:}
+          | mathmode:mm content:c
+            {:RESULT = "" + mm + c;:}
+          | error:e
+                      {:RESULT = "" + "  --->  content parse error " + e;:}
+          ;
+
+item_list ::= BEGIN items:i END
+              {:RESULT = "" + i;:}
+          ;
+
+items ::= ITEM BODY:b items:i
+          {:RESULT = "" + b + '\n' + i;:}
+        | error:e
+                      {:RESULT = "" + "  --->  item parse error " + e;:}
+        ;
+
+mathmode ::= MATHMODE mathmode_content:mc MATHMODE
+              {:RESULT = "" + mc;:}
+            ;
+
+mathmode_content ::= NM:n mathmode_content:mc
+                      {:RESULT = "" + n + mc;:}
+                    | VAR:v mathmode_content:mc
+                      {:RESULT = "" + v + mc;:}
+                    | error:e
+                      {:RESULT = "" + "  --->  mathmode_content parse error " + e;:}
+                    ;
+
+item_content ::= BODY:b item_content
+                  {:RESULT = "" + b;:}
+                | error:e
+                      {:RESULT = "" + "  --->  item_content parse error " + e;:}
+                ;
+
+
