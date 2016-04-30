@@ -8,7 +8,7 @@ public class AP {
 
 	public static void main(String[] args) {
 
-		String inFile = "Latex1.tex";
+		String inFile = "Template3/Latex3.tex";
 
 		if (args.length > 1) {
 			inFile = args[0];
