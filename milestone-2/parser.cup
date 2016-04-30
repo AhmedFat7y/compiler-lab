@@ -23,17 +23,39 @@ parser code
 :}
 
 /* Terminals (tokens returned by the scanner). */
-terminal			BF, TITLE, TEXT, SECTION, LABEL, OPERATOR, DATE, BEGIN, NM, NEWLINE, SUB_TITLE, MATHMODE, BODY, END, PACKAGE, FUNC, ERROR, VAR, MAKE, DOC_CLASS, ITEM;
+terminal	BF, TITLE, TEXT, SECTION, LABEL, OPERATOR;
+terminal  DATE, BEGIN, NM, NEWLINE, SUB_TITLE, MATHMODE;
+terminal  BODY, END, PACKAGE, FUNC, ERROR, VAR, MAKE;
+terminal  DOC_CLASS, ITEM;
 
 /* Non-terminals */
-nonterminal	String	 file;
+nonterminal	String	 file, document, starters, content;
 
 
 
 
 /* The grammar */
 
-file ::= DOC_CLASS PACKAGE BEGIN:t1 END:t2
-			  {:RESULT = t1 + "\n" + t2;:}
-			  |  {:RESULT = "no way";:};
+file ::= DOC_CLASS PACKAGE BEGIN:t1 document:d END:t2
+			  {:RESULT = "" + d;:}
+			| error
+        {:RESULT = "" + "parse error";:};
 
+document ::= starters:s content:c
+            {:RESULT = "" + s + '\n' + c;:}
+          | error
+            {:RESULT = "" + "parse error";:};
+
+starters ::= TITLE TEXT:title DATE TEXT:date MAKE
+            {:RESULT = "" + title + '\n' + date + '\n';:}
+          | error
+            {:RESULT = "" + "parse error";:};
+
+content ::= SECTION TEXT:sectionTitle
+            {:RESULT = "" + sectionTitle + '\n';:}
+          | BODY:b
+            {:RESULT = "" + b;:}
+          | NEWLINE
+            {:RESULT = "" + "\n newline \n";:}
+          | error
+            {:RESULT = "" + "parse error";:};
